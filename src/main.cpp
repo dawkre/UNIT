@@ -18,6 +18,7 @@ int main() {
 	int dev1Id = 1;
 	int fd0 = initializeDevice(dev0);
 	int fd1 = initializeDevice(dev1);
+	if(fd0==-1 || fd1==-1){/*exception*/return -1;}
 	
 	position object_coordinates = get_position();
 

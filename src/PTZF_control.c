@@ -21,7 +21,7 @@ int initializeDevice(char *deviceName) {
 	int fd = open(deviceName, O_RDWR | O_NOCTTY | O_SYNC);
 	if (fd < 0)
 	{
-		printf("%s: Unable to open.\n", deviceName);
+		printf("%s: Unable to open. Check if device is connected and program is run as root.\n", deviceName);
 		return -1;
 	}
 	return fd;
