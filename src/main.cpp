@@ -11,24 +11,24 @@ extern "C" {
 
 #include <stdio.h>
 
-int main() {
-	CascadeClassifier face_cascade;
-	String face_cascade_name = "../cascades/haarcascade_frontalface_alt.xml";
-	if ( !face_cascade.load( face_cascade_name ) ) { printf("--(!)Error loading\n"); return -1; };
 
-	device left_cam {"/dev/ttyMXUSB0", 0, -1, "21818297"};
-	device right_cam {"/dev/ttyMXUSB1", 1, -1, "21855432"};
-	left_cam.fd = initializeDevice(left_cam.name);
-	right_cam.fd = initializeDevice(right_cam.name);
-	if(left_cam.fd==-1 || right_cam.fd==-1){/*exception*/return -1;}
-	
+int main() {
+	/*Initialize detector*/
+	CascadeClassifier face_cascade = initialize_detector("../cascades/haarcascade_frontalface_alt.xml");
+
+	/*Initialize devices*/
+	device left_cam {"/dev/ttyMXUSB0", 0, initializeDevice((char*)"/dev/ttyMXUSB0"), "21818297"};
+	device right_cam {"/dev/ttyMXUSB1", 1, initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432"};
+	if (left_cam.fd == -1 || right_cam.fd == -1) {/*exception*/return -1;}
+
 	Cameras cameras;
 	Mat cam_img;
+	bbox detection;
 
 	while (true) {
 		try {
 			cam_img = cameras.getFrameFromCamera(left_cam.serial_number);
-			bbox detection = detect_object(cam_img, face_cascade);
+			detection = detect_object(cam_img, face_cascade);
 
 			if (detection.x > 0) {
 				Point center( detection.x + detection.w / 2, detection.y + detection.h / 2 );
