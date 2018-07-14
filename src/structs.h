@@ -1,23 +1,23 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-struct position {
+typedef struct {
 	float x, y, z;
-};
+} position;
 
-struct PTZF {
+typedef struct {
 	float pan, tilt, zoom, focus;
-};
+} PTZF;
 
-struct bbox {
+typedef struct  {
 	int x, y, w, h;
-};
+} bbox;
 
-struct device {
+typedef struct  {
 	char name[15];
 	int id;
 	int fd;
 	char serial_number[9];
-};
+} device;
 
 #endif /* STRUCTS_H */
