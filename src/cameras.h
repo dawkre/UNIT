@@ -7,12 +7,14 @@ This code draws from the Grab_MultipleCameras code avilable in Pylon's examples.
 
 #include <pylon/PylonIncludes.h>
 #include "opencv2/core/core.hpp"
+#include <string.h>
 
 using namespace cv;
 using namespace Pylon;
 using namespace std;
 
 class Cameras {
+	string model[2];
 	static const size_t numberOfCameras = 2;
 	PylonAutoInitTerm autoInitTerm;
 	CInstantCameraArray camerasArray;
@@ -23,5 +25,5 @@ class Cameras {
 
 public:
 	Cameras();
-	Mat getFrameFromCamera(int cameraIndex) ;
+	Mat getFrameFromCamera(string camera_serial_number);
 };
