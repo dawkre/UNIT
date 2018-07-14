@@ -12,27 +12,37 @@ extern "C" {
 #include <stdio.h>
 
 int main() {
+	CascadeClassifier face_cascade;
+	String face_cascade_name = "../cascades/haarcascade_frontalface_alt.xml";
+	if ( !face_cascade.load( face_cascade_name ) ) { printf("--(!)Error loading\n"); return -1; };
+
 	device left_cam {"/dev/ttyMXUSB0", 0, -1, "21818297"};
 	device right_cam {"/dev/ttyMXUSB1", 1, -1, "21855432"};
 	left_cam.fd = initializeDevice(left_cam.name);
 	right_cam.fd = initializeDevice(right_cam.name);
 	if(left_cam.fd==-1 || right_cam.fd==-1){/*exception*/return -1;}
 	
-	position object_coordinates = get_position();
-
-	printf("\ncalculations module test:\n");
-	printf("position: x:%.2f, y:%.2f, z:%.2f\n", object_coordinates.x, object_coordinates.y, object_coordinates.z);
-	PTZF ptzf = calculate_PTZF();
-	printf("ptzf: pan:%f, tilt:%f, zoom:%f, focus:%f\n", ptzf.pan, ptzf.tilt, ptzf.zoom, ptzf.focus);
-
 	Cameras cameras;
 	Mat cam_img;
 
 	while (true) {
 		try {
 			cam_img = cameras.getFrameFromCamera(left_cam.serial_number);
+			bbox detection = detect_object(cam_img, face_cascade);
+
+			if (detection.x > 0) {
+				Point center( detection.x + detection.w / 2, detection.y + detection.h / 2 );
+				ellipse( cam_img, center, Size( detection.w / 2, detection.h / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
+			}
 			imshow("Left camera", cam_img);
+
 			cam_img = cameras.getFrameFromCamera(right_cam.serial_number);
+			detection = detect_object(cam_img, face_cascade);
+
+			if (detection.x > 0) {
+				Point center( detection.x + detection.w / 2, detection.y + detection.h / 2 );
+				ellipse( cam_img, center, Size( detection.w / 2, detection.h / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
+			}
 			imshow("Right camera", cam_img);
 		}
 		catch (GenICam::GenericException &e) {
