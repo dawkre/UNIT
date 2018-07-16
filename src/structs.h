@@ -6,7 +6,8 @@ typedef struct {
 } position;
 
 typedef struct {
-	float pan, tilt, zoom, focus;
+	float pan, tilt;
+	int zoom, focus;
 } PTZF;
 
 typedef struct  {
@@ -18,6 +19,7 @@ typedef struct  {
 	int id;
 	int fd;
 	char serial_number[9];
+	PTZF ptzf;
 } device;
 
 #endif /* STRUCTS_H */
