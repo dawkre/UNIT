@@ -32,6 +32,7 @@ int main() {
 	Mat cam_img;
 	bbox detection;
 	PTZF ptzf;
+	bool left_detected, right_detected;
 
 	while (true) {
 		try {
@@ -40,8 +41,11 @@ int main() {
 
 			cam_img = cameras.getFrameFromCamera(left_cam.serial_number);
 			detection = detect_object(cam_img, face_cascade);
+			left_detected = false;
+			right_detected = false;
 
 			if (detection.x > 0) {
+				left_detected=true;
 	 			ptzf = left_cam.ptzf;
 
 				Point center( detection.x + detection.w / 2, detection.y + detection.h / 2 );
@@ -58,6 +62,7 @@ int main() {
 			detection = detect_object(cam_img, face_cascade);
 
 			if (detection.x > 0) {
+				right_detected = true;
 				ptzf = right_cam.ptzf;
 
 				Point center( detection.x + detection.w / 2, detection.y + detection.h / 2 );
@@ -72,8 +77,12 @@ int main() {
 
 			set_PTZF(&left_cam);
 			set_PTZF(&right_cam);
+
+			if (left_detected && right_detected) {
+				calculateCordinates();
+			}
 		}
-		catch (GenICam::GenericException &e) {
+			catch (GenICam::GenericException &e) {
 			cerr << "An exception occurred.\n" << e.GetDescription() << endl;
 		}
 

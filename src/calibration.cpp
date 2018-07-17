@@ -5,11 +5,7 @@
 
 void calibration_mode() {
 	printf("\nCalibration mode.\n"
-	       "arrow keys-\tpan and tilt\n"
-	       "+/-\t-\tzoom in/out\n"
-	       "f/F\t-\tto change focus.\n"
-	       "s\t-\ttake snapshot\n"
-	       "c\t-\tswitch continuous capture mode\n\n");
+	       "arrow keys-\tpan and tilt\n");
 	printf("Calibrating LEFT camera. Press Enter key when ready.\n");
 	left_cam.ptzf = loop(left_cam);
 	left_cam.offset = left_cam.ptzf;
@@ -37,18 +33,6 @@ PTZF loop(device cam) {
 			break;
 		case 68:
 			cam.ptzf.pan--;
-			break;
-		case '+':
-			cam.ptzf.zoom++;
-			break;
-		case '-':
-			cam.ptzf.zoom--;
-			break;
-		case 'F':
-			cam.ptzf.focus++;
-			break;
-		case 'f':
-			cam.ptzf.focus--;
 			break;
 		}
 		set_PTZF(&cam);

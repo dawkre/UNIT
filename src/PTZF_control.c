@@ -354,8 +354,8 @@ void set_PTZF(device* dev){
 	else if (dev->ptzf.pan < 0)
 		dev->ptzf.pan = dev->ptzf.pan + 360;
 
-	if (dev->ptzf.tilt > 180)
-		dev->ptzf.tilt = 180;
+	if (dev->ptzf.tilt > 90)
+		dev->ptzf.tilt = 90;
 	else if (dev->ptzf.tilt < 0)
 		dev->ptzf.tilt = 0;
 
