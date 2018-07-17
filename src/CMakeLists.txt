@@ -19,6 +19,7 @@ add_executable(
 	detection.cpp 
 	main.cpp 
 	PTZF_control.c
+	calibration.cpp
 )
 
 target_link_libraries(main ${OpenCV_LIBS} pylonutility pylonbase GCBase_gcc_v3_0_Basler_pylon_v5_0)

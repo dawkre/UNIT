@@ -2,6 +2,8 @@
 #include "cameras.h"
 #include "calculations.h"
 #include "structs.h"
+#include "calibration.h"
+#include "globals.h"
 extern "C" {
 #include "PTZF_control.h"
 }
@@ -10,19 +12,23 @@ extern "C" {
 
 #include <stdio.h>
 
+/*Initialize devices*/
+device left_cam {"/dev/ttyMXUSB0", 0, initializeDevice((char*)"/dev/ttyMXUSB0"), "21818297", {0, 0, 0, 0}, {0, 0, 0, 0}};
+device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432", {0, 0, 0, 0}, {0, 0, 0, 0}};
+
+Cameras cameras;
 
 int main() {
+
 	/*Initialize detector*/
 	CascadeClassifier face_cascade = initialize_detector("../cascades/haarcascade_frontalface_alt.xml");
 
-	/*Initialize devices*/
-	device left_cam {"/dev/ttyMXUSB0", 0, initializeDevice((char*)"/dev/ttyMXUSB0"), "21818297", {100,70,0,0}};
-	device right_cam {"/dev/ttyMXUSB1", 1, initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432", {190,70,0,0}};
 	if (left_cam.fd == -1 || right_cam.fd == -1) {/*exception*/return -1;}
 	set_PTZF(left_cam);
 	set_PTZF(right_cam);
 
-	Cameras cameras;
+	calibration_mode();
+	
 	Mat cam_img;
 	bbox detection;
 	PTZF ptzf;

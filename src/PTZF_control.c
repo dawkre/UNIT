@@ -66,7 +66,7 @@ char getch(){
     old.c_lflag|=ECHO;
     if(tcsetattr(0, TCSADRAIN, &old)<0)
         perror ("tcsetattr ~ICANON");
-    printf("%c\n",buf);
+    // printf("%c\n",buf);
     return buf;
  }
 

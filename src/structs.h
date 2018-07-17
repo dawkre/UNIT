@@ -20,6 +20,7 @@ typedef struct  {
 	int fd;
 	char serial_number[9];
 	PTZF ptzf;
+	PTZF offset;
 } device;
 
 #endif /* STRUCTS_H */
