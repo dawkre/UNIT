@@ -8,7 +8,7 @@ bbox detect_object( Mat frame, CascadeClassifier cascade )
 	equalizeHist( frame, frame );
 
 	cascade.detectMultiScale( frame, objects, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(30, 30) );
-	bbox detection = {-1,-1,-1,-1};
+	bbox detection = { -1, -1, -1, -1};
 	if (  objects.size() > 0)
 	{
 		detection = {

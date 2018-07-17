@@ -28,7 +28,7 @@ int main() {
 	set_PTZF(&right_cam);
 
 	calibration_mode();
-	
+
 	Mat cam_img;
 	bbox detection;
 	PTZF ptzf;
@@ -45,8 +45,8 @@ int main() {
 			right_detected = false;
 
 			if (detection.x > 0) {
-				left_detected=true;
-	 			ptzf = left_cam.ptzf;
+				left_detected = true;
+				ptzf = left_cam.ptzf;
 
 				Point center( detection.x + detection.w / 2, detection.y + detection.h / 2 );
 				ellipse( cam_img, center, Size( detection.w / 2, detection.h / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
@@ -82,7 +82,7 @@ int main() {
 				calculateCordinates();
 			}
 		}
-			catch (GenICam::GenericException &e) {
+		catch (GenICam::GenericException &e) {
 			cerr << "An exception occurred.\n" << e.GetDescription() << endl;
 		}
 
