@@ -51,7 +51,7 @@ PTZF loop(device cam) {
 			cam.ptzf.focus--;
 			break;
 		}
-		set_PTZF(cam);
+		set_PTZF(&cam);
 	}
 	return cam.ptzf;
 }

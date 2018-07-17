@@ -345,32 +345,32 @@ PTZF get_position(int fd, int id_device)
     return ptzf;
 }
 
-void set_PTZF(device dev){
-	int fd = dev.fd;
-	int id = dev.id;
+void set_PTZF(device* dev){
+	int fd = dev->fd;
+	int id = dev->id;
 
-	if(dev.ptzf.pan > 360)
-		dev.ptzf.pan = dev.ptzf.pan - 360;
-	else if(dev.ptzf.pan < 0)
-		dev.ptzf.pan = dev.ptzf.pan + 360;
+	if (dev->ptzf.pan > 360)
+		dev->ptzf.pan = dev->ptzf.pan - 360;
+	else if (dev->ptzf.pan < 0)
+		dev->ptzf.pan = dev->ptzf.pan + 360;
 
-	if(dev.ptzf.tilt > 90)
-		dev.ptzf.tilt = 90;
-	else if(dev.ptzf.tilt < 0)
-		dev.ptzf.tilt = 0;
+	if (dev->ptzf.tilt > 180)
+		dev->ptzf.tilt = 180;
+	else if (dev->ptzf.tilt < 0)
+		dev->ptzf.tilt = 0;
 
-	if(dev.ptzf.zoom > 254)
-		dev.ptzf.zoom = 254;
-	else if(dev.ptzf.zoom < 0)
-		dev.ptzf.zoom = 0;
+	if (dev->ptzf.zoom > 254)
+		dev->ptzf.zoom = 254;
+	else if (dev->ptzf.zoom < 0)
+		dev->ptzf.zoom = 0;
 
-	if(dev.ptzf.focus > 254)
-		dev.ptzf.focus = 254;
-	else if(dev.ptzf.focus < 0)
-		dev.ptzf.focus = 0;
+	if (dev->ptzf.focus > 254)
+		dev->ptzf.focus = 254;
+	else if (dev->ptzf.focus < 0)
+		dev->ptzf.focus = 0;
 
-	set_pan(fd, id, dev.ptzf.pan);
-	set_tilt(fd, id, dev.ptzf.tilt);
-	set_zoom(fd, id, dev.ptzf.zoom);
-	set_focus(fd, id, dev.ptzf.focus);
+	set_pan(fd, id, dev->ptzf.pan);
+	set_tilt(fd, id, dev->ptzf.tilt);
+	set_zoom(fd, id, dev->ptzf.zoom);
+	set_focus(fd, id, dev->ptzf.focus);
 }

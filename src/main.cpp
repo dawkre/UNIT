@@ -24,8 +24,8 @@ int main() {
 	CascadeClassifier face_cascade = initialize_detector("../cascades/haarcascade_frontalface_alt.xml");
 
 	if (left_cam.fd == -1 || right_cam.fd == -1) {/*exception*/return -1;}
-	set_PTZF(left_cam);
-	set_PTZF(right_cam);
+	set_PTZF(&left_cam);
+	set_PTZF(&right_cam);
 
 	calibration_mode();
 	
@@ -70,8 +70,8 @@ int main() {
 			}
 			imshow("Right camera", cam_img);
 
-			set_PTZF(left_cam);
-			set_PTZF(right_cam);
+			set_PTZF(&left_cam);
+			set_PTZF(&right_cam);
 		}
 		catch (GenICam::GenericException &e) {
 			cerr << "An exception occurred.\n" << e.GetDescription() << endl;

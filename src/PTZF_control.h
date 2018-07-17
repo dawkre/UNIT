@@ -20,4 +20,4 @@ void speed_zoom(int fd, int id_device, int speed);
 void speed_focus_iris(int fd, int id_device, int speed);
 void speed_PTZ(int fd, uint8_t id_device, int speed_pan, int speed_tilt, int speed_zoom);
 PTZF get_position(int fd, int id_device);
-void set_PTZF(device dev);
+void set_PTZF(device* dev);
