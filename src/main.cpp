@@ -13,8 +13,8 @@ extern "C" {
 #include <stdio.h>
 
 /*Initialize devices*/
-device left_cam {"/dev/ttyMXUSB0", 0, initializeDevice((char*)"/dev/ttyMXUSB0"), "21818297", {0, 0, 0, 0}, {0, 0, 0, 0}};
-device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432", {0, 0, 0, 0}, {0, 0, 0, 0}};
+device left_cam {"/dev/ttyMXUSB0", 0, initializeDevice((char*)"/dev/ttyMXUSB0"), "21818297", {0, 90, 0, 0}, {0, 0, 0, 0}};
+device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432", {0, 90, 0, 0}, {0, 0, 0, 0}};
 
 Cameras cameras;
 
@@ -53,7 +53,7 @@ int main() {
 
 				ptzf.pan = ptzf.pan + getDeltaPan( cam_img.size().width, center.x, ptzf.zoom);
 				ptzf.tilt = ptzf.tilt + getDeltaTilt( cam_img.size().height, center.y ,  ptzf.zoom);
-
+				ptzf.zoom = calculateZoom(cam_img.size().width, detection, left_cam);
 				left_cam.ptzf = ptzf;
 			}
 			imshow("Left camera", cam_img);
@@ -70,7 +70,7 @@ int main() {
 
 				ptzf.pan = ptzf.pan + getDeltaPan( cam_img.size().width, center.x, ptzf.zoom);
 				ptzf.tilt = ptzf.tilt + getDeltaTilt( cam_img.size().height, center.y ,  ptzf.zoom);
-
+				ptzf.zoom = calculateZoom(cam_img.size().width, detection, right_cam);
 				right_cam.ptzf = ptzf;
 			}
 			imshow("Right camera", cam_img);
