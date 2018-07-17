@@ -4,6 +4,8 @@ When the class is instantiated, the communication with the cameras is initialize
 The frames from the cameras can then be captured using the getFrameFromCamera method.
 This code draws from the Grab_MultipleCameras code avilable in Pylon's examples.
 */
+#ifndef CAMERAS_H
+#define CAMERAS_H
 
 #include <pylon/PylonIncludes.h>
 #include "opencv2/core/core.hpp"
@@ -27,3 +29,5 @@ public:
 	Cameras();
 	Mat getFrameFromCamera(string camera_serial_number);
 };
+
+#endif /* CAMERAS_H */

@@ -4,10 +4,16 @@
 #include "globals.h"
 
 void calibration_mode() {
-	printf("Calibrating left camera. Use arrow to pan and tilt, +/- to zoom in/out and f/F to change focus.\n");
+	printf("\nCalibration mode.\n"
+	       "arrow keys-\tpan and tilt\n"
+	       "+/-\t-\tzoom in/out\n"
+	       "f/F\t-\tto change focus.\n"
+	       "s\t-\ttake snapshot\n"
+	       "c\t-\tswitch continuous capture mode\n\n");
+	printf("Calibrating LEFT camera. Press Enter key when ready.\n");
 	left_cam.ptzf = loop(left_cam);
 	left_cam.offset = left_cam.ptzf;
-	printf("Calibrating right camera. Use arrow to pan and tilt, +/- to zoom in/out and f/F to change focus.\n");
+	printf("Calibrating RIGHT camera. Press Enter key when ready.\n");
 	right_cam.ptzf = loop(right_cam);
 	right_cam.offset = right_cam.ptzf;
 }
@@ -15,15 +21,8 @@ void calibration_mode() {
 PTZF loop(device cam) {
 	Mat cam_img;
 	char input = 'a';
-	int i = 5;
+
 	while (input != '\n') {
-		if (i % 5 == 0) {
-			cam_img = cameras.getFrameFromCamera(cam.serial_number);
-			imshow("Calibrating camera", cam_img);
-			waitKey(1);
-			i = 1;
-		}
-		i++;
 		input = getch();
 
 		switch (input) {
