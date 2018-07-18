@@ -2,10 +2,6 @@
 #define STRUCTS_H
 
 typedef struct {
-	float x, y, z;
-} position;
-
-typedef struct {
 	float pan, tilt;
 	int zoom, focus;
 } PTZF;
@@ -21,6 +17,7 @@ typedef struct  {
 	char serial_number[9];
 	PTZF ptzf;
 	PTZF offset;
+	float distance_to_object;
 } device;
 
 #endif /* STRUCTS_H */

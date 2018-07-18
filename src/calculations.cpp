@@ -42,30 +42,27 @@ void calculateCordinates() {
 
 	printf("Odległość sqrt^2 %f \n", points[3]);
 	printf("Odległość2 sqrt^2 %f \n", points[4]);
+	left_cam.distance_to_object = points[3];
+	right_cam.distance_to_object = points[4];
 }
 
 int calculateZoom(int img_width, bbox detection, device cam) {
 	float lower_limit, upper_limit;
 	if (cam.id == left_cam.id) {
-		lower_limit = 0.4;
-		upper_limit = 0.5;
+		lower_limit = 0.3;
+		upper_limit = 0.4;
 	}
 	if (cam.id == right_cam.id) {
-		lower_limit = 0.5;
-		upper_limit = 0.6;
+		lower_limit = 0.4;
+		upper_limit = 0.5;
 	}
 	if (detection.w / img_width < lower_limit && cam.ptzf.zoom < 200 ) return cam.ptzf.zoom+10;
 	else if (detection.w / img_width > upper_limit) return cam.ptzf.zoom-10;
 }
 
-// void calculateFocus() {
-// 	if (points[4] < 1.5)focus2 = 0;
-// 	else if (points[4] > 9) focus2 = 190;
-// 	else focus2 = -3.5 * points[4] * points[4] + 59.2 * points[4] - 69;
-// 	printf("Focus2 %i \n", focus2);
-
-// 	if (points[3] < 1.5)focus1 = 0;
-// 	else if (points[3] > 9) focus1 = 190;
-// 	else focus1 = -3.5 * points[3] * points[3] + 59.2 * points[3] - 69;
-// 	printf("Focus1 %i \n", focus1);
-// }
+int calculateFocus(device cam) {
+	float dist = cam.distance_to_object;
+	if (dist < 1.5) return 0;
+	else if (dist > 9) return 190;
+	else return (int)(-3.5 * dist * dist + 59.2 * dist - 69);
+}

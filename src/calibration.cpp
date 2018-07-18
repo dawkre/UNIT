@@ -37,5 +37,6 @@ PTZF loop(device cam) {
 		}
 		set_PTZF(&cam);
 	}
+	printf("Offset set: {%.0f,%.0f,%d,%d} \n", cam.ptzf.pan, cam.ptzf.tilt, cam.ptzf.zoom, cam.ptzf.focus);
 	return cam.ptzf;
 }

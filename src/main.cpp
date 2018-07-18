@@ -54,6 +54,7 @@ int main() {
 				ptzf.pan = ptzf.pan + getDeltaPan( cam_img.size().width, center.x, ptzf.zoom);
 				ptzf.tilt = ptzf.tilt + getDeltaTilt( cam_img.size().height, center.y ,  ptzf.zoom);
 				ptzf.zoom = calculateZoom(cam_img.size().width, detection, left_cam);
+				ptzf.focus = calculateFocus(left_cam);
 				left_cam.ptzf = ptzf;
 			}
 			imshow("Left camera", cam_img);
@@ -71,16 +72,23 @@ int main() {
 				ptzf.pan = ptzf.pan + getDeltaPan( cam_img.size().width, center.x, ptzf.zoom);
 				ptzf.tilt = ptzf.tilt + getDeltaTilt( cam_img.size().height, center.y ,  ptzf.zoom);
 				ptzf.zoom = calculateZoom(cam_img.size().width, detection, right_cam);
+				ptzf.focus = calculateFocus(right_cam);
 				right_cam.ptzf = ptzf;
 			}
 			imshow("Right camera", cam_img);
 
-			set_PTZF(&left_cam);
-			set_PTZF(&right_cam);
-
+			if (!left_detected) {
+				left_cam.ptzf.zoom -= 20;
+			}
+			if (!right_detected) {
+				right_cam.ptzf.zoom -= 20;
+			}
 			if (left_detected && right_detected) {
 				calculateCordinates();
 			}
+
+			set_PTZF(&left_cam);
+			set_PTZF(&right_cam);
 		}
 		catch (GenICam::GenericException &e) {
 			cerr << "An exception occurred.\n" << e.GetDescription() << endl;
