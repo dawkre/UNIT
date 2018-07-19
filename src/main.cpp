@@ -46,17 +46,10 @@ int main() {
 
 			if (detection.x > 0) {
 				left_detected = true;
-				ptzf = left_cam.ptzf;
-
-				Point center( detection.x + detection.w / 2, detection.y + detection.h / 2 );
-				ellipse( cam_img, center, Size( detection.w / 2, detection.h / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
-
-				ptzf.pan = ptzf.pan + getDeltaPan( cam_img.size().width, center.x, ptzf.zoom);
-				ptzf.tilt = ptzf.tilt + getDeltaTilt( cam_img.size().height, center.y ,  ptzf.zoom);
-				ptzf.zoom = calculateZoom(cam_img.size().width, detection, left_cam);
-				ptzf.focus = calculateFocus(left_cam);
-				left_cam.ptzf = ptzf;
+				ellipse( cam_img, Point(detection.center_x, detection.center_y), Size( detection.w / 2, detection.h / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
+				left_cam.ptzf = calculatePTZF(cam_img.size().width,  cam_img.size().height, detection, left_cam);
 			}
+
 			imshow("Left camera", cam_img);
 
 			cam_img = cameras.getFrameFromCamera(right_cam.serial_number);
@@ -64,17 +57,10 @@ int main() {
 
 			if (detection.x > 0) {
 				right_detected = true;
-				ptzf = right_cam.ptzf;
-
-				Point center( detection.x + detection.w / 2, detection.y + detection.h / 2 );
-				ellipse( cam_img, center, Size( detection.w / 2, detection.h / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
-
-				ptzf.pan = ptzf.pan + getDeltaPan( cam_img.size().width, center.x, ptzf.zoom);
-				ptzf.tilt = ptzf.tilt + getDeltaTilt( cam_img.size().height, center.y ,  ptzf.zoom);
-				ptzf.zoom = calculateZoom(cam_img.size().width, detection, right_cam);
-				ptzf.focus = calculateFocus(right_cam);
-				right_cam.ptzf = ptzf;
+				ellipse( cam_img, Point(detection.center_x, detection.center_y), Size( detection.w / 2, detection.h / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
+				right_cam.ptzf = calculatePTZF(cam_img.size().width,  cam_img.size().height, detection, right_cam);;
 			}
+
 			imshow("Right camera", cam_img);
 
 			if (!left_detected) {

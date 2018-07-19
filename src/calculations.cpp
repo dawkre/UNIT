@@ -13,14 +13,14 @@ float getFocal(int zoom)
 	}
 }
 
-float getDeltaPan(int imageWidth, int positon, int zoom) {
+float getDeltaPan(int img_width, int center_x, int zoom) {
 	float size = 2.65;
-	return ((float)atan2((positon - (imageWidth / 2)) * size / imageWidth, getFocal(zoom))) * 180.0 / 3.14;
+	return ((float)atan2((center_x - (img_width / 2)) * size / img_width, getFocal(zoom))) * 180.0 / 3.14;
 }
 
-float getDeltaTilt(int imageWidth, int positon, int zoom) {
+float getDeltaTilt(int img_height, int center_y, int zoom) {
 	float size = 2.65;
-	return ((float)atan2((positon - (imageWidth / 2)) * size / imageWidth, getFocal(zoom))) * 180.0 / 3.14;
+	return ((float)atan2((center_y - (img_height / 2)) * size / img_height, getFocal(zoom))) * 180.0 / 3.14;
 }
 
 void calculateCordinates() {
@@ -37,11 +37,8 @@ void calculateCordinates() {
 	points[3] = sqrt(points[0] * points[0] + points[1] * points[1] + points[2] * points[2]);
 	points[4] = sqrt(points[0] * points[0] + (points[1] - l) * (points[1] - l) + points[2] * points[2]);
 
-	printf("Odległość x %f \n", points[0]);
-	printf("Odległość y %f \n", points[1]);
+	printf("\rx: %.2f, y: %.2f, left cam dist sqrt^2: %.2f, right cam dist sqrt^2: %.2f", points[0], points[1], points[2], points[3]);
 
-	printf("Odległość sqrt^2 %f \n", points[3]);
-	printf("Odległość2 sqrt^2 %f \n", points[4]);
 	left_cam.distance_to_object = points[3];
 	right_cam.distance_to_object = points[4];
 }
@@ -56,8 +53,8 @@ int calculateZoom(int img_width, bbox detection, device cam) {
 		lower_limit = 0.4;
 		upper_limit = 0.5;
 	}
-	if (detection.w / img_width < lower_limit && cam.ptzf.zoom < 200 ) return cam.ptzf.zoom+10;
-	else if (detection.w / img_width > upper_limit) return cam.ptzf.zoom-10;
+	if (detection.w / img_width < lower_limit && cam.ptzf.zoom < 200 ) return cam.ptzf.zoom + 10;
+	else if (detection.w / img_width > upper_limit) return cam.ptzf.zoom - 10;
 }
 
 int calculateFocus(device cam) {
@@ -65,4 +62,13 @@ int calculateFocus(device cam) {
 	if (dist < 1.5) return 0;
 	else if (dist > 9) return 190;
 	else return (int)(-3.5 * dist * dist + 59.2 * dist - 69);
+}
+
+PTZF calculatePTZF(int img_width, int img_height, bbox detection, device cam) {
+	PTZF ptzf;
+	ptzf.pan = cam.ptzf.pan + getDeltaPan(img_width, detection.center_x, cam.ptzf.zoom);
+	ptzf.tilt = cam.ptzf.tilt + getDeltaTilt(img_height, detection.center_y, cam.ptzf.zoom);
+	ptzf.zoom = calculateZoom(img_width, detection, cam);
+	ptzf.focus = calculateFocus(cam);
+	return ptzf;
 }
