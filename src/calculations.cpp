@@ -53,8 +53,8 @@ int calculateZoom(int img_width, bbox detection, device cam) {
 		lower_limit = 0.4;
 		upper_limit = 0.5;
 	}
-	if (detection.w / img_width < lower_limit && cam.ptzf.zoom < 200 ) return cam.ptzf.zoom + 10;
-	else if (detection.w / img_width > upper_limit) return cam.ptzf.zoom - 10;
+	if (detection.width / img_width < lower_limit && cam.ptzf.zoom < 200 ) return cam.ptzf.zoom + 10;
+	else if (detection.width / img_width > upper_limit) return cam.ptzf.zoom - 10;
 }
 
 int calculateFocus(device cam) {

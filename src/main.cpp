@@ -19,8 +19,6 @@ device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1")
 Cameras cameras;
 
 int main() {
-
-	/*Initialize detector*/
 	CascadeClassifier face_cascade = initialize_detector("../cascades/haarcascade_frontalface_alt.xml");
 
 	if (left_cam.fd == -1 || right_cam.fd == -1) {/*exception*/return -1;}
@@ -31,7 +29,6 @@ int main() {
 
 	Mat cam_img;
 	bbox detection;
-	PTZF ptzf;
 	bool left_detected, right_detected;
 
 	while (true) {
@@ -44,9 +41,9 @@ int main() {
 			left_detected = false;
 			right_detected = false;
 
-			if (detection.x > 0) {
+			if (detection.left > 0) {
 				left_detected = true;
-				ellipse( cam_img, Point(detection.center_x, detection.center_y), Size( detection.w / 2, detection.h / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
+				ellipse( cam_img, Point(detection.center_x, detection.center_y), Size( detection.width / 2, detection.height / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
 				left_cam.ptzf = calculatePTZF(cam_img.size().width,  cam_img.size().height, detection, left_cam);
 			}
 
@@ -55,9 +52,9 @@ int main() {
 			cam_img = cameras.getFrameFromCamera(right_cam.serial_number);
 			detection = detect_object(cam_img, face_cascade);
 
-			if (detection.x > 0) {
+			if (detection.left > 0) {
 				right_detected = true;
-				ellipse( cam_img, Point(detection.center_x, detection.center_y), Size( detection.w / 2, detection.h / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
+				ellipse( cam_img, Point(detection.center_x, detection.center_y), Size( detection.width / 2, detection.height / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
 				right_cam.ptzf = calculatePTZF(cam_img.size().width,  cam_img.size().height, detection, right_cam);;
 			}
 
