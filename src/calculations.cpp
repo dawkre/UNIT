@@ -37,7 +37,7 @@ void calculateCordinates() {
 	points[3] = sqrt(points[0] * points[0] + points[1] * points[1] + points[2] * points[2]);
 	points[4] = sqrt(points[0] * points[0] + (points[1] - l) * (points[1] - l) + points[2] * points[2]);
 
-	printf("\rx: %.2f, y: %.2f, left cam dist sqrt^2: %.2f, right cam dist sqrt^2: %.2f", points[0], points[1], points[2], points[3]);
+	printf("\rx: %3.2f | y: %3.2f | left cam dist sqrt^2 | %3.2f, right cam dist sqrt^2: %3.2f", points[0], points[1], points[2], points[3]);
 
 	left_cam.distance_to_object = points[3];
 	right_cam.distance_to_object = points[4];
