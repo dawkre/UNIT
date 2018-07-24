@@ -1,20 +1,11 @@
-/*
-The detection files contain all detection-related logic.
-The detect_object method should return a bbox object that describes
-the bounding box around the detected object.
-*/
-
-#include "structs.h"
 #include "opencv2/core/core.hpp"
-#include "opencv2/objdetect/objdetect.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-// #include "opencv2/gpu/gpu.hpp"
-// #include "opencv2/core/gpumat.hpp"
+#include "opencv2/highgui/highgui_c.h"
+#include "opencv2/imgproc/imgproc_c.h"
+#include "opencv2/core/types_c.h"
+#include "opencv2/core/version.hpp"
 using namespace cv;
+#include "yolo_v2_class.hpp"    // imported functions from DLL
+#include "structs.h"
 
-// bbox detect_object( Mat frame, gpu::CascadeClassifier_GPU face_cascade );
-// gpu::CascadeClassifier_GPU initialize_detector(String cascade_name);
-
-bbox detect_object( Mat frame, CascadeClassifier face_cascade );
-CascadeClassifier initialize_detector(String cascade_name);
+bbox detect_object(Mat frame, std::vector<std::string> obj_names);
+std::vector<std::string> objects_names_from_file(std::string const filename);

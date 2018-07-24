@@ -13,13 +13,24 @@ extern "C" {
 #include <stdio.h>
 
 /*Initialize devices*/
-device left_cam {"/dev/ttyMXUSB0", 0, initializeDevice((char*)"/dev/ttyMXUSB0"), "21818297", {0, 90, 0, 0}, {0, 0, 0, 0}};
-device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432", {0, 90, 0, 0}, {0, 0, 0, 0}};
+device left_cam {"/dev/ttyMXUSB0", 0, initializeDevice((char*)"/dev/ttyMXUSB0"), "21818297", {64, 79, 0, 0} , {0, 0, 0, 0}};
+device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432", {112, 68, 0, 0} , {0, 0, 0, 0}};
 
 Cameras cameras;
+// std::string cfg_file = "data/yolo-fe.cfg";
+// std::string weights_file = "data/yolo-fe_final.weights";
+std::string cfg_file = "data/yolov3-tiny.cfg";
+std::string weights_file = "data/yolov3-tiny.weights";
+// std::string cfg_file = "data/yolo-face.cfg";
+// std::string weights_file = "data/yolo-face_final.weights";
+// std::string cfg_file = "data/yolo-tiny.cfg";
 
+Detector detector(cfg_file, weights_file);
 int main() {
-	CascadeClassifier face_cascade = initialize_detector("../cascades/haarcascade_frontalface_alt.xml");
+
+	std::string  names_file = "data/coco.names";
+	auto obj_names = objects_names_from_file(names_file);
+
 
 	if (left_cam.fd == -1 || right_cam.fd == -1) {/*exception*/return -1;}
 	set_PTZF(&left_cam);
@@ -33,15 +44,20 @@ int main() {
 
 	while (true) {
 		try {
+			left_detected = false;
+			right_detected = false;
+
 			left_cam.ptzf = get_position(left_cam.fd, left_cam.id);
 			right_cam.ptzf = get_position(right_cam.fd, right_cam.id);
 
 			cam_img = cameras.getFrameFromCamera(left_cam.serial_number);
-			detection = detect_object(cam_img, face_cascade);
-			left_detected = false;
-			right_detected = false;
+			cvtColor(cam_img, cam_img, cv::COLOR_GRAY2RGB);
+
+			detection = detect_object(cam_img, obj_names);
 
 			if (detection.left > 0) {
+				printf("%d %d %d %d %d %d \n", detection.left, detection.top, detection.width, detection.height, detection.center_x, detection.center_y);
+
 				left_detected = true;
 				ellipse( cam_img, Point(detection.center_x, detection.center_y), Size( detection.width / 2, detection.height / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
 				left_cam.ptzf = calculatePTZF(cam_img.size().width,  cam_img.size().height, detection, left_cam);
@@ -50,9 +66,12 @@ int main() {
 			imshow("Left camera", cam_img);
 
 			cam_img = cameras.getFrameFromCamera(right_cam.serial_number);
-			detection = detect_object(cam_img, face_cascade);
+			cvtColor(cam_img, cam_img, cv::COLOR_GRAY2RGB);
+			detection = detect_object(cam_img, obj_names);
 
 			if (detection.left > 0) {
+				printf("%d %d %d %d %d %d \n", detection.left, detection.top, detection.width, detection.height, detection.center_x, detection.center_y);
+
 				right_detected = true;
 				ellipse( cam_img, Point(detection.center_x, detection.center_y), Size( detection.width / 2, detection.height / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
 				right_cam.ptzf = calculatePTZF(cam_img.size().width,  cam_img.size().height, detection, right_cam);;
@@ -70,8 +89,8 @@ int main() {
 				calculateCordinates();
 			}
 
-			set_PTZF(&left_cam);
-			set_PTZF(&right_cam);
+			// set_PTZF(&left_cam);
+			// set_PTZF(&right_cam);
 		}
 		catch (GenICam::GenericException &e) {
 			cerr << "An exception occurred.\n" << e.GetDescription() << endl;

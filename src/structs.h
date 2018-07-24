@@ -7,7 +7,7 @@ typedef struct {
 } PTZF;
 
 typedef struct  {
-	int left, top, width, height, center_x, center_y;
+	unsigned int left, top, width, height, center_x, center_y;
 } bbox;
 
 typedef struct  {

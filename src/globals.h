@@ -12,4 +12,10 @@ extern device right_cam;
 
 extern Cameras cameras;
 
+#include "yolo_v2_class.hpp"    // imported functions from DLL
+
+extern std::string cfg_file;
+extern std::string weights_file;
+extern Detector detector;
+
 #endif /* GLOBALS_H */
