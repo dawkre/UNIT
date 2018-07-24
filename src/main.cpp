@@ -19,7 +19,7 @@ device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1")
 Cameras cameras;
 
 int main() {
-	CascadeClassifier face_cascade = initialize_detector("../cascades/haarcascade_frontalface_alt.xml");
+	gpu::CascadeClassifier_GPU face_cascade = initialize_detector("../cascades/haarcascade_frontalface_alt.xml");
 
 	if (left_cam.fd == -1 || right_cam.fd == -1) {/*exception*/return -1;}
 	set_PTZF(&left_cam);
