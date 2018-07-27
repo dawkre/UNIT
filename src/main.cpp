@@ -13,13 +13,13 @@ extern "C" {
 #include <stdio.h>
 
 /*Initialize devices*/
-device left_cam {"/dev/ttyMXUSB0", 0, initializeDevice((char*)"/dev/ttyMXUSB0"), "21818297", {0, 90, 0, 0}, {0, 0, 0, 0}};
-device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432", {0, 90, 0, 0}, {0, 0, 0, 0}};
+device left_cam {"/dev/ttyMXUSB0", 0, initializeDevice((char*)"/dev/ttyMXUSB0"), "21818297",  {157,90,0,0}, {0, 0, 0, 0}};
+device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432", {206,90,0,0} , {0, 0, 0, 0}};
 
 Cameras cameras;
-
 int main() {
-	gpu::CascadeClassifier_GPU face_cascade = initialize_detector("../cascades/haarcascade_frontalface_alt.xml");
+	Ptr<cuda::CascadeClassifier> face_cascade = cuda::CascadeClassifier::create(
+	            "../haarcascades_cuda_4.0.0/haarcascade_frontalface_alt.xml");
 
 	if (left_cam.fd == -1 || right_cam.fd == -1) {/*exception*/return -1;}
 	set_PTZF(&left_cam);
@@ -32,12 +32,16 @@ int main() {
 	bool left_detected, right_detected;
 
 	while (true) {
+			double time = what_time_is_it_now();
+
 		try {
 			left_cam.ptzf = get_position(left_cam.fd, left_cam.id);
 			right_cam.ptzf = get_position(right_cam.fd, right_cam.id);
 
 			cam_img = cameras.getFrameFromCamera(left_cam.serial_number);
 			detection = detect_object(cam_img, face_cascade);
+			bbox d = detection;
+			// printf("%d %d %d %d %d %d \n", d.left, d.top, d.width, d.height, d.center_x, d.center_y);
 			left_detected = false;
 			right_detected = false;
 
@@ -80,6 +84,8 @@ int main() {
 		moveWindow("Left camera", 0, 0);
 		moveWindow("Right camera", 640, 0);
 		waitKey(1);
+				printf("%f\n", what_time_is_it_now()-time);
+
 	}
 	return 0;
 }

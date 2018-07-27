@@ -1,30 +1,47 @@
 #include "detection.h"
 #include <stdio.h>
+#include <sys/time.h>
 
-bbox detect_object( Mat frame, gpu::CascadeClassifier_GPU cascade )
+double what_time_is_it_now()
 {
-	gpu::GpuMat frame_gpu(frame);
-	gpu::GpuMat objectsBuf_gpu;
-	Mat objects_downloaded;
-	int detections_num = cascade.detectMultiScale( frame_gpu, objectsBuf_gpu, 1.2, 2, Size(frame.cols/4, frame.rows/4) );
-	bbox detection = { -1, -1, -1, -1};
-	if ( detections_num > 0)
-	{
-		objectsBuf_gpu.colRange(0,1).download(objects_downloaded);
-		Rect * rects = objects_downloaded.ptr<Rect>();
-		detection = {
-			rects[0].x,
-			rects[0].y,
-			rects[0].width,
-			rects[0].height
-		};
+	struct timeval time;
+	if (gettimeofday(&time, NULL)) {
+		return 0;
 	}
+	return (double)time.tv_sec + (double)time.tv_usec * .000001;
+}
+bbox detect_object( Mat frame, Ptr<cuda::CascadeClassifier> cascade )
+{
+	cuda::GpuMat frame_gpu(frame);
+	cuda::GpuMat objectsBuf_gpu;
+	double time;
+
+	time = what_time_is_it_now();
+	cascade->detectMultiScale( frame_gpu, objectsBuf_gpu);
+	time = what_time_is_it_now() - time;
+	// printf("%f\n", time);
+
+	std::vector<Rect> faces;
+	cascade->convert(objectsBuf_gpu, faces);
+	Rect face(-1, -1, -1, -1);
+	for (int i = 0; i < faces.size(); ++i) {
+		if (faces[i].width > face.width) face = faces[i];
+	}
+
+	bbox detection = {
+		face.x,
+		face.y,
+		face.width,
+		face.height,
+		face.x + face.width / 2,
+		face.y + face.height / 2
+	};
 
 	return detection;
 }
 
-gpu::CascadeClassifier_GPU initialize_detector(String cascade_name) {
-	gpu::CascadeClassifier_GPU cascade;
-	if ( !cascade.load( cascade_name ) ) { printf("detector initialization failed\n"); throw - 1; };
-	return cascade;
-}
+// gpu::CascadeClassifier_GPU initialize_detector(String cascade_name) {
+// 	gpu::CascadeClassifier_GPU cascade;
+// 	if ( !cascade.load( cascade_name ) ) { printf("detector initialization failed\n"); throw - 1; };
+// 	return cascade;
+// }
