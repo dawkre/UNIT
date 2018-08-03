@@ -7,5 +7,5 @@ using namespace cv;
 #include "yolo_v2_class.hpp"    // imported functions from DLL
 #include "structs.h"
 
-bbox detect_object(Mat frame, std::vector<std::string> obj_names);
+std::vector<bbox> detect_object(Mat frame, std::vector<std::string> obj_names);
 std::vector<std::string> objects_names_from_file(std::string const filename);

@@ -8,6 +8,7 @@ typedef struct {
 
 typedef struct  {
 	unsigned int left, top, width, height, center_x, center_y;
+	int type;
 } bbox;
 
 typedef struct  {

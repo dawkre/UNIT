@@ -26,27 +26,53 @@ std::vector<std::string> objects_names_from_file(std::string const filename) {
 	return file_lines;
 }
 
-bbox build_bbox(std::vector<bbox_t> const result_vec, std::vector<std::string> const obj_names) {
-	bbox detection = { 0, 0, 0, 0, 0, 0};
+std::vector<bbox> build_bbox(std::vector<bbox_t> const result_vec, std::vector<std::string> const obj_names) {
 
+	std::vector<bbox> detections;
+	int eyeCounter = 0;
 	for (auto &i : result_vec) {
-		if (obj_names.size() > i.obj_id && obj_names[i.obj_id] == "person") {
-			detection = {
-				i.x,
-				i.y,
-				i.w,
-				i.h,
-				i.x + i.w / 2,
-				i.y + i.h / 2
-			};
-			std::cout << obj_names[i.obj_id] << " - ";
-			std::cout << "obj_id = " << i.obj_id << ",  x = " << i.x << ", y = " << i.y
-			          << ", w = " << i.w << ", h = " << i.h
-			          << std::setprecision(3) << ", prob = " << i.prob << std::endl;
-			break;
+		bbox detection = { 0, 0, 0, 0, 0, 0, false};
+		detection = {
+			i.x,
+			i.y,
+			i.w,
+			i.h,
+			i.x + i.w / 2,
+			i.y + i.h / 2,
+			obj_names[i.obj_id] == "face"
+		};
+		if(	obj_names[i.obj_id] != "face") eyeCounter++;
+
+		if(eyeCounter==2){
+			if(detections[0].type==0){
+				if(detections[0].left<detection.left){
+					detection.type = 2;
+					detections[0].type = 3;
+				}
+				else {
+					detections[0].type = 2;
+					detection.type = 3;
+				}
+			}
+			else if (detections[1].type == 0 ){
+				if(detections[1].left<detection.left){
+					detection.type = 2;
+					detections[0].type = 3;
+				}
+				else {
+					detections[0].type = 2;
+					detection.type = 3;}
+			}
 		}
+		std::cout << obj_names[i.obj_id] << " - ";
+		std::cout << "obj_id = " << i.obj_id << ",  x = " << i.x << ", y = " << i.y
+		          << ", w = " << i.w << ", h = " << i.h
+		          << std::setprecision(3) << ", prob = " << i.prob << std::endl;
+		detections.push_back(detection);
+
 	}
-	return detection;
+
+	return detections;
 }
 
 double what_time_is_it_now()
@@ -58,11 +84,11 @@ double what_time_is_it_now()
 	return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
 
-bbox detect_object(Mat frame, std::vector<std::string> obj_names) {
+std::vector<bbox> detect_object(Mat frame, std::vector<std::string> obj_names) {
 	try {
 		double time = what_time_is_it_now();
 		std::vector<bbox_t> result_vec = detector.detect(frame, 0.1);
-		printf("predicted in: %f\n", what_time_is_it_now() - time);
+		// printf("predicted in: %f\n", what_time_is_it_now() - time);
 		return build_bbox(result_vec, obj_names);
 	}
 	catch (std::exception &e) { std::cerr << "exception: " << e.what() << "\n"; getchar(); }
