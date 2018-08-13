@@ -14,7 +14,7 @@ extern "C" {
 
 /*Initialize devices*/
 device left_cam {"/dev/ttyMXUSB0", 0, initializeDevice((char*)"/dev/ttyMXUSB0"), "21818297", {158, 90, 0, 0}  , {0, 0, 0, 0}};
-device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432", {112, 68, 0, 0} , {0, 0, 0, 0}};
+device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432", {199, 90, 0, 0} , {0, 0, 0, 0}};
 
 Cameras cameras;
 // std::string cfg_file = "data/yolo-fe.cfg";
@@ -24,6 +24,8 @@ std::string weights_file = "data/yolov3-tiny-obj-3.weights";
 // std::string cfg_file = "data/yolo-face.cfg";
 // std::string weights_file = "data/yolo-face_final.weights";
 // std::string cfg_file = "data/yolo-tiny.cfg";
+
+int CALMAN_FRAME_WITHOUT_DETECTION = 30;
 
 Detector detector(cfg_file, weights_file);
 char key_pressed;
@@ -45,8 +47,36 @@ void ReadCin(std::atomic<bool>& run)
 		if (buffer == '3') track_face = 3;
 	}
 }
+KalmanFilter generateKalman() {
+	KalmanFilter Filter(4, 2, 0);
+	Filter.transitionMatrix = (Mat_<float>(4, 4) << 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1);
+	Filter.statePre.at<float>(0) = 0;        //Położenie x
+	Filter.statePre.at<float>(1) = 0;        //Położenie y
+	Filter.statePre.at<float>(2) = 0;        //Prędkosc x
+	Filter.statePre.at<float>(3) = 0;
+	setIdentity(Filter.measurementMatrix);
+	setIdentity(Filter.processNoiseCov, Scalar::all(1e-3));        //Kowariancja Q
+	setIdentity(Filter.measurementNoiseCov, Scalar::all(1e-2));    //Kowariancja R
+	setIdentity(Filter.errorCovPost, Scalar::all(.1));
 
+	return Filter;
+}
 int main() {
+
+	KalmanFilter leftFilter = generateKalman();
+	KalmanFilter rightFilter = generateKalman();
+
+
+	Mat_<float> estimationPointsRight(2, 1);
+	Mat_<float> estimationPointsLeft(2, 1);
+
+	estimationPointsRight(0) = 320;
+	estimationPointsRight(1) = 240;
+
+	estimationPointsLeft(0) = 320;
+	estimationPointsLeft(1) = 240;
+
+
 	std::string  names_file = "data/coco.names";
 	auto obj_names = objects_names_from_file(names_file);
 
@@ -64,7 +94,13 @@ int main() {
 	std::atomic<bool> run(true);
 	std::thread cinThread(ReadCin, std::ref(run));
 
+
+	int leftWithoutDetection = CALMAN_FRAME_WITHOUT_DETECTION;
+	int rightWithoutDetection = CALMAN_FRAME_WITHOUT_DETECTION;
+
 	while (true) {
+		leftFilter.predict();
+		rightFilter.predict();
 
 		try {
 			left_detected = false;
@@ -77,17 +113,32 @@ int main() {
 			cvtColor(cam_img, cam_img, cv::COLOR_GRAY2RGB);
 
 			detections = detect_object(cam_img, obj_names);
-			for (auto &detection : detections) {
-				if (detection.left > 0) {
+			bbox detection;
+			for (auto &d : detections) {
+				if (d.left > 0) {
 					// printf("%d %d %d %d %d %d \n", detection.left, detection.top, detection.width, detection.height, detection.center_x, detection.center_y);
 
 					left_detected = true;
-					if (detection.type == track_face) {
-						ellipse( cam_img, Point(detection.center_x, detection.center_y), Size( detection.width / 2, detection.height / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
+					if (d.type == track_face) {
+						ellipse( cam_img, Point(d.center_x, d.center_y), Size( d.width / 2, d.height / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
 
-						left_cam.ptzf = calculatePTZF(cam_img.size().width,  cam_img.size().height, detection, left_cam);
+						detection = d;
+
+						estimationPointsLeft(0) = d.center_x;
+						estimationPointsLeft(1) = d.center_y;
+
+						leftWithoutDetection = 0;
 					}
+
 				}
+			}
+			leftWithoutDetection++;
+			if (leftWithoutDetection < CALMAN_FRAME_WITHOUT_DETECTION) {
+				Mat estimatedLeft = leftFilter.correct(estimationPointsLeft);
+				detection.center_x = estimatedLeft.at<float>(0);
+				detection.center_y = estimatedLeft.at<float>(1);
+				circle(cam_img, Point(estimatedLeft.at<float>(0), estimatedLeft.at<float>(1)), 20, Scalar( 255, 0, 255 ),  5, 8, 0);
+				left_cam.ptzf = calculatePTZF(cam_img.size().width,  cam_img.size().height, detection, left_cam);
 			}
 			imshow("Left camera", cam_img);
 
@@ -95,17 +146,32 @@ int main() {
 			cvtColor(cam_img, cam_img, cv::COLOR_GRAY2RGB);
 			detections = detect_object(cam_img, obj_names);
 
-			for (auto &detection : detections) {
-				if (detection.left > 0) {
+			for (auto &d : detections) {
+				if (d.left > 0) {
 					// printf("%d %d %d %d %d %d \n", detection.left, detection.top, detection.width, detection.height, detection.center_x, detection.center_y);
 
 					right_detected = true;
-					if (detection.type == track_face) {
-						ellipse( cam_img, Point(detection.center_x, detection.center_y), Size( detection.width / 2, detection.height / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
+					if (d.type == track_face) {
+						ellipse( cam_img, Point(d.center_x, d.center_y), Size( d.width / 2, d.height / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
 
-						right_cam.ptzf = calculatePTZF(cam_img.size().width,  cam_img.size().height, detection, right_cam);
+						detection = d;
+
+						estimationPointsRight(0) = detection.center_x;
+						estimationPointsRight(1) = detection.center_y;
+						rightWithoutDetection = 0;
 					}
-				}
+				} 
+			}
+			rightWithoutDetection++;
+
+			if (rightWithoutDetection < CALMAN_FRAME_WITHOUT_DETECTION) {
+
+				Mat estimatedRight = rightFilter.correct(estimationPointsRight);
+				detection.center_x = estimatedRight.at<float>(0);
+				detection.center_y = estimatedRight.at<float>(1);
+				circle(cam_img, Point(estimatedRight.at<float>(0), estimatedRight.at<float>(1)), 20, Scalar( 255, 0, 255 ),  5, 8, 0);
+
+				right_cam.ptzf = calculatePTZF(cam_img.size().width,  cam_img.size().height, detection, right_cam);;
 			}
 			imshow("Right camera", cam_img);
 
