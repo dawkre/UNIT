@@ -26,6 +26,7 @@ add_executable(
 	main.cpp 
 	PTZF_control.c
 	calibration.cpp
+	kalman.cpp
 )
 target_include_directories(main PUBLIC ${DARKNET_DIR_PATH}/src)
 target_link_libraries(main ${OpenCV_LIBS} pylonutility pylonbase GCBase_gcc_v3_0_Basler_pylon_v5_0 darknet)

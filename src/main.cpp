@@ -4,6 +4,7 @@
 #include "structs.h"
 #include "calibration.h"
 #include "globals.h"
+#include "kalman.h"
 extern "C" {
 #include "PTZF_control.h"
 }
@@ -28,7 +29,6 @@ std::string weights_file = "data/yolov3-tiny-obj-3.weights";
 int CALMAN_FRAME_WITHOUT_DETECTION = 30;
 
 Detector detector(cfg_file, weights_file);
-char key_pressed;
 
 types tracked_type = face;
 #include <atomic>
@@ -47,20 +47,7 @@ void ReadCin(std::atomic<bool>& run)
 		if (buffer == '3') tracked_type = right_eye;
 	}
 }
-KalmanFilter generateKalman() {
-	KalmanFilter Filter(4, 2, 0);
-	Filter.transitionMatrix = (Mat_<float>(4, 4) << 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1);
-	Filter.statePre.at<float>(0) = 0;        //Położenie x
-	Filter.statePre.at<float>(1) = 0;        //Położenie y
-	Filter.statePre.at<float>(2) = 0;        //Prędkosc x
-	Filter.statePre.at<float>(3) = 0;
-	setIdentity(Filter.measurementMatrix);
-	setIdentity(Filter.processNoiseCov, Scalar::all(1e-3));        //Kowariancja Q
-	setIdentity(Filter.measurementNoiseCov, Scalar::all(1e-2));    //Kowariancja R
-	setIdentity(Filter.errorCovPost, Scalar::all(.1));
 
-	return Filter;
-}
 int main() {
 
 	KalmanFilter leftFilter = generateKalman();
