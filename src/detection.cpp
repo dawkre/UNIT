@@ -64,10 +64,10 @@ std::vector<bbox> build_bbox(std::vector<bbox_t> const result_vec, std::vector<s
 					detection.type = 3;}
 			}
 		}
-		std::cout << obj_names[i.obj_id] << " - ";
-		std::cout << "obj_id = " << i.obj_id << ",  x = " << i.x << ", y = " << i.y
-		          << ", w = " << i.w << ", h = " << i.h
-		          << std::setprecision(3) << ", prob = " << i.prob << std::endl;
+		// std::cout << obj_names[i.obj_id] << " - ";
+		// std::cout << "obj_id = " << i.obj_id << ",  x = " << i.x << ", y = " << i.y
+		//           << ", w = " << i.w << ", h = " << i.h
+		//           << std::setprecision(3) << ", prob = " << i.prob << std::endl;
 		detections.push_back(detection);
 
 	}

@@ -86,7 +86,7 @@ void set_control(int fd, int id_device)
 		printf("Write() failed\n");
 }
 
-void set_pan(int fd, int id_device, int angle)
+void set_pan(int fd, int id_device, float angle)
 {
 	int position = (int)(50 * angle);
 	char hex[] = "";
@@ -119,7 +119,7 @@ void set_pan(int fd, int id_device, int angle)
 		printf("Write() failed\n");
 }
 
-void set_tilt(int fd, int id_device, int angle)
+void set_tilt(int fd, int id_device, float angle)
 {
 	int position = (int)(50 * angle);
 	char hex[] = "";
@@ -368,7 +368,6 @@ void set_PTZF(device* dev) {
 		dev->ptzf.focus = 254;
 	else if (dev->ptzf.focus < 0)
 		dev->ptzf.focus = 0;
-
 	set_pan(fd, id, dev->ptzf.pan);
 	set_tilt(fd, id, dev->ptzf.tilt);
 	set_zoom(fd, id, dev->ptzf.zoom);

@@ -13,8 +13,8 @@ extern "C" {
 #include <stdio.h>
 
 /*Initialize devices*/
-device left_cam {"/dev/ttyMXUSB0", 0, initializeDevice((char*)"/dev/ttyMXUSB0"), "21818297", {158, 90, 0, 0}  , {0, 0, 0, 0}};
-device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432", {199, 90, 0, 0} , {0, 0, 0, 0}};
+device left_cam {"/dev/ttyMXUSB0", 0, initializeDevice((char*)"/dev/ttyMXUSB0"), "21818297", {158, 90, 100, 0}  , {0, 0, 0, 0}};
+device right_cam {"/dev/ttyMXUSB1", 1,	initializeDevice((char*)"/dev/ttyMXUSB1"), "21855432", {199, 90, 100, 0} , {0, 0, 0, 0}};
 
 Cameras cameras;
 // std::string cfg_file = "data/yolo-fe.cfg";
@@ -105,7 +105,6 @@ int main() {
 		try {
 			left_detected = false;
 			right_detected = false;
-
 			left_cam.ptzf = get_position(left_cam.fd, left_cam.id);
 			right_cam.ptzf = get_position(right_cam.fd, right_cam.id);
 
@@ -118,8 +117,9 @@ int main() {
 				if (d.left > 0) {
 					// printf("%d %d %d %d %d %d \n", detection.left, detection.top, detection.width, detection.height, detection.center_x, detection.center_y);
 
-					left_detected = true;
 					if (d.type == track_face) {
+						left_detected = true;
+
 						ellipse( cam_img, Point(d.center_x, d.center_y), Size( d.width / 2, d.height / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
 
 						detection = d;
@@ -133,10 +133,10 @@ int main() {
 				}
 			}
 			leftWithoutDetection++;
-			if (leftWithoutDetection < CALMAN_FRAME_WITHOUT_DETECTION) {
+			if (left_detected) {
 				Mat estimatedLeft = leftFilter.correct(estimationPointsLeft);
-				detection.center_x = estimatedLeft.at<float>(0);
-				detection.center_y = estimatedLeft.at<float>(1);
+				// detection.center_x = estimatedLeft.at<float>(0);
+				// detection.center_y = estimatedLeft.at<float>(1);
 				circle(cam_img, Point(estimatedLeft.at<float>(0), estimatedLeft.at<float>(1)), 20, Scalar( 255, 0, 255 ),  5, 8, 0);
 				left_cam.ptzf = calculatePTZF(cam_img.size().width,  cam_img.size().height, detection, left_cam);
 			}
@@ -150,8 +150,9 @@ int main() {
 				if (d.left > 0) {
 					// printf("%d %d %d %d %d %d \n", detection.left, detection.top, detection.width, detection.height, detection.center_x, detection.center_y);
 
-					right_detected = true;
 					if (d.type == track_face) {
+						right_detected = true;
+
 						ellipse( cam_img, Point(d.center_x, d.center_y), Size( d.width / 2, d.height / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
 
 						detection = d;
@@ -164,11 +165,11 @@ int main() {
 			}
 			rightWithoutDetection++;
 
-			if (rightWithoutDetection < CALMAN_FRAME_WITHOUT_DETECTION) {
+			if (right_detected) {
 
 				Mat estimatedRight = rightFilter.correct(estimationPointsRight);
-				detection.center_x = estimatedRight.at<float>(0);
-				detection.center_y = estimatedRight.at<float>(1);
+				// detection.center_x = estimatedRight.at<float>(0);
+				// detection.center_y = estimatedRight.at<float>(1);
 				circle(cam_img, Point(estimatedRight.at<float>(0), estimatedRight.at<float>(1)), 20, Scalar( 255, 0, 255 ),  5, 8, 0);
 
 				right_cam.ptzf = calculatePTZF(cam_img.size().width,  cam_img.size().height, detection, right_cam);;
@@ -176,17 +177,21 @@ int main() {
 			imshow("Right camera", cam_img);
 
 			if (!left_detected) {
-				left_cam.ptzf.zoom -= 20;
+				left_cam.ptzf.zoom -= 10;
 			}
 			if (!right_detected) {
-				right_cam.ptzf.zoom -= 20;
+				right_cam.ptzf.zoom -= 10;
 			}
 			if (left_detected && right_detected) {
 				calculateCordinates();
 			}
-
-			set_PTZF(&left_cam);
-			set_PTZF(&right_cam);
+			if(left_detected){
+				set_PTZF(&left_cam);
+			}
+			if (right_detected)
+			{
+				set_PTZF(&right_cam);
+			}
 		}
 		catch (GenICam::GenericException &e) {
 			cerr << "An exception occurred.\n" << e.GetDescription() << endl;
