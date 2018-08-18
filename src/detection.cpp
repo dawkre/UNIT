@@ -31,7 +31,7 @@ std::vector<bbox> build_bbox(std::vector<bbox_t> const result_vec, std::vector<s
 	std::vector<bbox> detections;
 	int eyeCounter = 0;
 	for (auto &i : result_vec) {
-		bbox detection = { 0, 0, 0, 0, 0, 0, false};
+		bbox detection = { 0, 0, 0, 0, 0, 0, none};
 		detection = {
 			i.x,
 			i.y,
@@ -39,29 +39,30 @@ std::vector<bbox> build_bbox(std::vector<bbox_t> const result_vec, std::vector<s
 			i.h,
 			i.x + i.w / 2,
 			i.y + i.h / 2,
-			obj_names[i.obj_id] == "face"
+			obj_names[i.obj_id] == "face" ? face : eye
 		};
-		if(	obj_names[i.obj_id] != "face") eyeCounter++;
+
+		if(	detection.type == eye) eyeCounter++;
 
 		if(eyeCounter==2){
-			if(detections[0].type==0){
+			if(detections[0].type==eye){
 				if(detections[0].left<detection.left){
-					detection.type = 2;
-					detections[0].type = 3;
+					detection.type = right_eye;
+					detections[0].type = left_eye;
 				}
 				else {
-					detections[0].type = 2;
-					detection.type = 3;
+					detections[0].type = right_eye;
+					detection.type = left_eye;
 				}
 			}
-			else if (detections[1].type == 0 ){
+			else if (detections[1].type == eye ){
 				if(detections[1].left<detection.left){
-					detection.type = 2;
-					detections[0].type = 3;
+					detection.type = right_eye;
+					detections[1].type = left_eye;
 				}
 				else {
-					detections[0].type = 2;
-					detection.type = 3;}
+					detections[1].type = right_eye;
+					detection.type = left_eye;}
 			}
 		}
 		// std::cout << obj_names[i.obj_id] << " - ";

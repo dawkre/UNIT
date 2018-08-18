@@ -30,7 +30,7 @@ int CALMAN_FRAME_WITHOUT_DETECTION = 30;
 Detector detector(cfg_file, weights_file);
 char key_pressed;
 
-int track_face = 1;
+types tracked_type = face;
 #include <atomic>
 #include <thread>
 #include <iostream>
@@ -42,9 +42,9 @@ void ReadCin(std::atomic<bool>& run)
 	while (run.load())
 	{
 		buffer = getch();
-		if (buffer == '1') track_face = 1;
-		if (buffer == '2') track_face = 2;
-		if (buffer == '3') track_face = 3;
+		if (buffer == '1') tracked_type = face;
+		if (buffer == '2') tracked_type = left_eye;
+		if (buffer == '3') tracked_type = right_eye;
 	}
 }
 KalmanFilter generateKalman() {
@@ -82,10 +82,17 @@ int main() {
 
 
 	if (left_cam.fd == -1 || right_cam.fd == -1) {/*exception*/return -1;}
+
 	set_PTZF(&left_cam);
 	set_PTZF(&right_cam);
 
 	calibration_mode();
+
+// set most convenient ptzf after calibration
+	left_cam.ptzf.pan -= 25;
+	right_cam.ptzf.pan += 25;
+	set_PTZF(&left_cam);
+	set_PTZF(&right_cam);
 
 	Mat cam_img;
 	std::vector<bbox> detections;
@@ -117,7 +124,7 @@ int main() {
 				if (d.left > 0) {
 					// printf("%d %d %d %d %d %d \n", detection.left, detection.top, detection.width, detection.height, detection.center_x, detection.center_y);
 
-					if (d.type == track_face) {
+					if (d.type == tracked_type) {
 						left_detected = true;
 
 						ellipse( cam_img, Point(d.center_x, d.center_y), Size( d.width / 2, d.height / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
@@ -150,7 +157,7 @@ int main() {
 				if (d.left > 0) {
 					// printf("%d %d %d %d %d %d \n", detection.left, detection.top, detection.width, detection.height, detection.center_x, detection.center_y);
 
-					if (d.type == track_face) {
+					if (d.type == tracked_type) {
 						right_detected = true;
 
 						ellipse( cam_img, Point(d.center_x, d.center_y), Size( d.width / 2, d.height / 2), 0, 0, 360, Scalar( 255, 0, 255 ), 2, 8, 0 );
@@ -198,7 +205,7 @@ int main() {
 		}
 
 		moveWindow("Left camera", 0, 0);
-		moveWindow("Right camera", 640, 0);
+		moveWindow("Right camera", 1200, 0);
 		waitKey(1);
 	}
 

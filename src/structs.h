@@ -6,9 +6,17 @@ typedef struct {
 	int zoom, focus;
 } PTZF;
 
+typedef enum types {
+	face,
+	eye,
+	left_eye,
+	right_eye,
+	none
+} types;
+
 typedef struct  {
 	unsigned int left, top, width, height, center_x, center_y;
-	int type;
+	types type;
 } bbox;
 
 typedef struct  {
