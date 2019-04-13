@@ -1,6 +1,8 @@
 # UNIT
 
-This project uses OpenCV and pylon software as dependencies.
+A university project I developed with a friend. The goal of the project is to use two PTZF cameras to detect objects, triangulate their position and track them with high magnification and resolution.
+
+This project uses OpenCV and pylon software as dependencies. It uses custom built hardware setup.
 
 **Hardware configuration**
 
