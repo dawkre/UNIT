@@ -14,7 +14,7 @@ sudo setserial /dev/ttyMXUSB1 port 0x1;
 sudo setserial /dev/ttyMXUSB0 port 0x1;
 ```
 
-After turning on the cameras always import the camera features
+After turning on, the cameras always import the camera features
 from the `camera_features` directory using `PylonViewerApp`.
 
 **Project setup**
