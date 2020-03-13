@@ -6,7 +6,7 @@ This project uses OpenCV and pylon software as dependencies. It uses custom buil
 
 **Hardware configuration**
 
-After connecting the devices always run below commands to configure ports:
+After connecting the devices, always run the commands below to configure ports:
 ```
 sudo setserial /dev/ttyMXUSB0 spd-vhi;
 sudo setserial /dev/ttyMXUSB1 spd-vhi;
